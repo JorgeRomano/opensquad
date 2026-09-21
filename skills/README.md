@@ -17,7 +17,7 @@ npx opensquad install <skill-name>
 | [resend](./resend/) | mcp | Send emails through Resend — single send, batch, scheduling, attachments, and contact management. | `RESEND_API_KEY` | `npx opensquad install resend` |
 | [image-fetcher](./image-fetcher/) | hybrid | Acquire visual assets via web search, live screenshots (Playwright), and user-provided files. | _(none)_ | `npx opensquad install image-fetcher` |
 | [image-creator](./image-creator/) | mcp | Render HTML/CSS into production-ready PNG images via Playwright. | _(none)_ | `npx opensquad install image-creator` |
-| [image-ai-generator](./image-ai-generator/) | script | Generate AI images via Openrouter API. Test mode (cheap) and production mode (high-quality). Supports reference images for brand consistency. | `OPENROUTER_API_KEY` | `npx opensquad install image-ai-generator` |
+| [image-ai-generator](./image-ai-generator/) | script | Generate AI images via Google Gemini & Imagen 3 API. Test mode (fast) and production mode (high-quality). Supports reference images and aspect ratios. | `GEMINI_API_KEY` | `npx opensquad install image-ai-generator` |
 
 ## Skill Types
 
