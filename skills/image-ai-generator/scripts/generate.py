@@ -26,10 +26,10 @@ import time
 import urllib.request
 import urllib.error
 
-# Model configuration per mode (Google Gemini / Imagen 3)
+# Model configuration per mode (Google Gemini API)
 GEMINI_MODELS = {
-    "test": "imagen-3.0-fast-generate-001",
-    "production": "imagen-3.0-generate-002",
+    "test": "gemini-3.1-flash-lite-image",
+    "production": "gemini-3.1-flash-image",
 }
 
 # Legacy OpenRouter fallback models if only OPENROUTER_API_KEY is present
@@ -67,12 +67,16 @@ def load_api_key():
                         if line.startswith("#"):
                             continue
                         if line.startswith("GEMINI_API_KEY="):
-                            key = line.split("=", 1)[1].strip().strip('"').strip("'")
-                            key_source = "GEMINI_API_KEY"
-                            break
+                            val = line.split("=", 1)[1].strip().strip('"').strip("'")
+                            if val:
+                                key = val
+                                key_source = "GEMINI_API_KEY"
+                                break
                         elif line.startswith("OPENROUTER_API_KEY=") and not key:
-                            key = line.split("=", 1)[1].strip().strip('"').strip("'")
-                            key_source = "OPENROUTER_API_KEY"
+                            val = line.split("=", 1)[1].strip().strip('"').strip("'")
+                            if val:
+                                key = val
+                                key_source = "OPENROUTER_API_KEY"
                 if key:
                     break
 
@@ -85,28 +89,33 @@ def load_api_key():
 
 
 def generate_image_gemini(prompt, output_path, mode, api_key, reference_image=None, aspect_ratio="1:1"):
-    """Generate an image using Google Imagen 3 API."""
+    """Generate an image using Google Gemini Image Generation API (generateContent)."""
     model = GEMINI_MODELS.get(mode, GEMINI_MODELS["test"])
-    url = f"{GEMINI_API_BASE}/{model}:predict?key={api_key}"
+    url = f"{GEMINI_API_BASE}/{model}:generateContent?key={api_key}"
 
-    instance = {"prompt": prompt}
+    parts = []
     if reference_image and os.path.exists(reference_image):
         ext = os.path.splitext(reference_image)[1].lower()
         mime_map = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif"}
         mime = mime_map.get(ext, "image/png")
         with open(reference_image, "rb") as img_f:
             ref_b64 = base64.b64encode(img_f.read()).decode("utf-8")
-        instance["image"] = {"bytesBase64Encoded": ref_b64, "mimeType": mime}
+        parts.append({
+            "inlineData": {
+                "mimeType": mime,
+                "data": ref_b64
+            }
+        })
+        parts.append({
+            "text": f"Generate an image incorporating the logo or reference asset provided. Description: {prompt}. Output format aspect ratio: {aspect_ratio}."
+        })
+    else:
+        parts.append({
+            "text": f"Generate an image: {prompt}. Aspect ratio: {aspect_ratio}. Do not output explanatory text, generate only the visual image."
+        })
 
     payload = json.dumps({
-        "instances": [instance],
-        "parameters": {
-            "sampleCount": 1,
-            "aspectRatio": aspect_ratio,
-            "outputMimeType": "image/jpeg",
-            "personGeneration": "ALLOW_ADULT",
-            "safetySetting": "BLOCK_MEDIUM_AND_ABOVE"
-        }
+        "contents": [{"parts": parts}]
     }).encode("utf-8")
 
     req = urllib.request.Request(
@@ -120,23 +129,46 @@ def generate_image_gemini(prompt, output_path, mode, api_key, reference_image=No
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         error_body = e.read().decode("utf-8", errors="replace")
-        print(f"  Google API error [{e.code}]: {error_body[:250]}", file=sys.stderr)
+        if "limit: 0" in error_body or e.code == 429:
+            print(f"\n⚠️  AVISO DE COTA DO GOOGLE GEMINI:", file=sys.stderr)
+            print(f"A API de geração de imagens do Google ({model}) exige um projeto com faturamento vinculado (Pay-as-you-go).", file=sys.stderr)
+            print(f"No plano Free Tier sem cartão, o Google define 'limit: 0' para modelos de imagem.", file=sys.stderr)
+            print(f"Para resolver:", file=sys.stderr)
+            print(f"  1. Ative o faturamento no Google Cloud / AI Studio (https://aistudio.google.com/)", file=sys.stderr)
+            print(f"  2. OU configure OPENROUTER_API_KEY no seu .env como fallback.\n", file=sys.stderr)
+        else:
+            print(f"  Google API error [{e.code}]: {error_body[:250]}", file=sys.stderr)
         return False
     except Exception as e:
         print(f"  Request error: {e}", file=sys.stderr)
         return False
 
-    predictions = data.get("predictions", [])
-    if not predictions or not predictions[0].get("bytesBase64Encoded"):
-        print(f"  No image returned by Google model {model}: {data}", file=sys.stderr)
+    candidates = data.get("candidates", [])
+    if not candidates:
+        print(f"  No content returned by Google model {model}: {data}", file=sys.stderr)
         return False
 
-    img_data = predictions[0]["bytesBase64Encoded"]
+    parts_resp = candidates[0].get("content", {}).get("parts", [])
+    img_data = None
+
+    for p in parts_resp:
+        if "inlineData" in p and p["inlineData"].get("data"):
+            img_data = p["inlineData"]["data"]
+            break
+        elif "text" in p and p["text"].startswith("data:image"):
+            raw_text = p["text"]
+            img_data = raw_text.split(",", 1)[1] if "," in raw_text else raw_text
+            break
+
+    if not img_data:
+        print(f"  Model response did not contain image data: {parts_resp}", file=sys.stderr)
+        return False
+
     with open(output_path, "wb") as f:
         f.write(base64.b64decode(img_data))
 
     size_kb = os.path.getsize(output_path) / 1024
-    print(f"  OK: {output_path} ({size_kb:.0f} KB) [Google Imagen 3: {model}]")
+    print(f"  OK: {output_path} ({size_kb:.0f} KB) [Google Gemini Image: {model}]")
     return True
 
 
