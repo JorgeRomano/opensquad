@@ -718,6 +718,24 @@ test('init with _ides kiro creates .kiro/steering/opensquad.md', async () => {
   }
 });
 
+test('init with _ides kiro creates .kiro/skills/opensquad/SKILL.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['kiro'] });
+
+    const content = await readFile(
+      join(tempDir, '.kiro', 'skills', 'opensquad', 'SKILL.md'),
+      'utf-8'
+    );
+    assert.ok(content.includes('name: opensquad'));
+    assert.ok(content.includes('description:'));
+    assert.ok(content.includes('/opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
 test('init with _ides kiro creates .kiro/settings/mcp.json with playwright server', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
