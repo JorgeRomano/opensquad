@@ -67,6 +67,7 @@ npx opensquad update
 | Open Code | Disponível |
 | Antigravity | Disponível |
 | Gemini CLI | Disponível |
+| Kiro | Disponível |
 | Qwen Code | Disponível |
 | Trae | Disponível |
 
@@ -219,6 +220,7 @@ npx opensquad update
 | Open Code | Available |
 | Antigravity | Available |
 | Gemini CLI | Available |
+| Kiro | Available |
 | Qwen Code | Available |
 | Trae | Available |
 

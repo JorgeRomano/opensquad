@@ -32,6 +32,7 @@ const IDES = [
   { label: 'Codex (OpenAI)', value: 'codex' },
   { label: 'Cursor', value: 'cursor' },
   { label: 'Gemini CLI', value: 'gemini-cli' },
+  { label: 'Kiro', value: 'kiro' },
   { label: 'OpenCode', value: 'opencode' },
   { label: 'Qwen Code', value: 'qwen-code' },
   { label: 'Trae', value: 'trae' },
@@ -117,6 +118,8 @@ export async function init(targetDir, options = {}) {
       console.log(`  ${t('step1Antigravity')}\n`);
     } else if (ide === 'cursor') {
       console.log(`  ${t('step1Cursor')}\n`);
+    } else if (ide === 'kiro') {
+      console.log(`  ${t('step1Kiro')}\n`);
     } else if (ide === 'opencode') {
       console.log(`  ${t('step1Opencode')}\n`);
     } else if (ide === 'vscode-copilot') {

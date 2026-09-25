@@ -699,3 +699,36 @@ test('init with _ides trae creates .trae/mcp.json with playwright server', async
     await rm(tempDir, { recursive: true, force: true });
   }
 });
+
+test('init with _ides kiro creates .kiro/steering/opensquad.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['kiro'] });
+
+    const content = await readFile(
+      join(tempDir, '.kiro', 'steering', 'opensquad.md'),
+      'utf-8'
+    );
+    assert.ok(content.includes('inclusion: always'));
+    assert.ok(content.includes('Opensquad'));
+    assert.ok(content.includes('/opensquad'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('init with _ides kiro creates .kiro/settings/mcp.json with playwright server', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['kiro'] });
+
+    const content = await readFile(join(tempDir, '.kiro', 'settings', 'mcp.json'), 'utf-8');
+    const config = JSON.parse(content);
+    assert.ok(config.mcpServers.playwright);
+    assert.ok(config.mcpServers.playwright.args.includes('--config'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});

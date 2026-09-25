@@ -71,6 +71,7 @@ opensquad supports multiple IDEs. When a user runs `npx opensquad init`, they ch
 | Antigravity | `templates/ide-templates/antigravity/` | `.agent/rules/opensquad.md`, `.agent/workflows/opensquad.md` |
 | OpenCode | `templates/ide-templates/opencode/` | `AGENTS.md`, `.opencode/commands/opensquad.md` |
 | Codex | `templates/ide-templates/codex/` | `AGENTS.md` |
+| Kiro | `templates/ide-templates/kiro/` | `.kiro/steering/opensquad.md`, `.kiro/settings/mcp.json` |
 
 ### The Golden Rule
 
@@ -214,6 +215,7 @@ Scan shared files for IDE-specific conditional logic that should live in `templa
 - `windsurf` or `windsurfrules`
 - `opencode` or `open-code`
 - `codex`
+- `kiro` or `.kiro/`
 - Conditional patterns: "se antigravity", "if antigravity", "for antigravity", "if cursor", "if windsurf", "if codex"
 
 **Exclusions:** Mentions inside this opensquad-dev SKILL.md itself (documentation), and any comment explicitly labeled as a cross-reference.

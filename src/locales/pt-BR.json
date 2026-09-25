@@ -6,6 +6,7 @@
   "step1Codex": "1. Veja AGENTS.md na raiz do projeto para instruções do Codex",
   "step1Antigravity": "1. Abra o Antigravity, digite / no chat e selecione opensquad para começar.",
   "step1Cursor": "1. Abra o Cursor, digite / no chat e selecione opensquad para começar.",
+  "step1Kiro": "1. Abra este diretório no Kiro e digite /opensquad no chat para começar.",
   "step1Opencode": "1. Abra o OpenCode e digite /opensquad para começar.",
   "ideNotAvailable": "⚠️  \"{label}\" ainda não está disponível. Escolha outra opção.",
   "enterNumber": "Por favor, digite um número entre 1 e {max}.",

@@ -116,3 +116,19 @@ test('all locales have step1Cursor key', async () => {
     );
   }
 });
+
+test('all locales have step1Kiro key', async () => {
+  const LOCALES_DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/locales');
+  const localeFiles = ['en', 'pt-BR', 'es'];
+
+  for (const locale of localeFiles) {
+    const content = JSON.parse(
+      await readFile(join(LOCALES_DIR, `${locale}.json`), 'utf-8')
+    );
+    assert.ok('step1Kiro' in content, `${locale}.json missing key: step1Kiro`);
+    assert.ok(
+      content.step1Kiro.length > 0,
+      `${locale}.json: step1Kiro must not be empty`
+    );
+  }
+});
