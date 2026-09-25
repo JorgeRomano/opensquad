@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Image Generator — Opensquad Skill
-Generates images via Google Gemini & Imagen 3 API.
+Generates images via the Google Gemini image generation API (with OpenRouter fallback).
+Note: Google image generation requires a billing-enabled project (not available on the free tier).
 
 Usage:
   # Single image (default 1:1)
@@ -82,7 +83,8 @@ def load_api_key():
 
     if not key:
         print("ERROR: GEMINI_API_KEY not found in environment or .env file.", file=sys.stderr)
-        print("Obtenha sua chave gratuita em https://aistudio.google.com/ e configure GEMINI_API_KEY no seu .env", file=sys.stderr)
+        print("Crie sua chave em https://aistudio.google.com/ e configure GEMINI_API_KEY no seu .env", file=sys.stderr)
+        print("Atenção: a geração de imagens do Google exige projeto com faturamento ativo (não funciona no free tier).", file=sys.stderr)
         sys.exit(1)
 
     return key, key_source
@@ -245,7 +247,7 @@ def generate_image(prompt, output_path, mode, api_key, key_source, reference_ima
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate images via Google Gemini & Imagen 3 API")
+    parser = argparse.ArgumentParser(description="Generate images via the Google Gemini image generation API")
     parser.add_argument("--prompt", help="Text prompt for single image generation")
     parser.add_argument("--output", help="Output file path for single image")
     parser.add_argument("--batch", help="Path to JSON batch file")
@@ -260,7 +262,7 @@ def main():
         parser.error("Either --prompt or --batch is required")
 
     api_key, key_source = load_api_key()
-    provider_name = "Google Gemini (Imagen 3)" if key_source == "GEMINI_API_KEY" else "OpenRouter (legacy fallback)"
+    provider_name = "Google Gemini Image" if key_source == "GEMINI_API_KEY" else "OpenRouter (legacy fallback)"
     model_name = GEMINI_MODELS[args.mode] if key_source == "GEMINI_API_KEY" else OPENROUTER_MODELS[args.mode]
     print(f"Image Generator — Provider: {provider_name} | Mode: {args.mode} | Model: {model_name} | Ratio: {args.aspect_ratio}")
 

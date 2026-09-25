@@ -1,15 +1,17 @@
 ---
 name: image-ai-generator
 description: >
-  Generates images via Google Gemini & Imagen 3 API.
-  Supports two modes: test (fast model for iteration) and production (high-quality Imagen 3 model).
+  Generates images via the Google Gemini image generation API.
+  Supports two modes: test (fast model for iteration) and production (high-quality model for final output).
   Handles prompt construction, API calls, base64 decoding, aspect ratios, and file saving.
   Supports reference images (logos, mascots) for brand-consistent generation.
+  Falls back to OpenRouter when only OPENROUTER_API_KEY is present.
 description_pt-BR: >
-  Gera imagens via API do Google Gemini e Imagen 3.
-  Suporta dois modos: test (modelo rápido para iteração) e production (modelo Imagen 3 de alta qualidade para output final).
+  Gera imagens via API de geração de imagens do Google Gemini.
+  Suporta dois modos: test (modelo rápido para iteração) e production (modelo de alta qualidade para output final).
   Cuida da construção de prompts, chamadas de API, decodificação base64, aspect ratios e salvamento de arquivos.
   Suporta imagens de referência (logos, mascotes) para geração consistente com a marca.
+  Usa OpenRouter como fallback quando apenas OPENROUTER_API_KEY está presente.
 type: script
 version: "1.1.0"
 script:
@@ -25,9 +27,11 @@ categories: [assets, images, ai, generation]
 
 ## When to use
 
-Use the Image Generator when you need to create visual assets from text prompts. This skill calls the Google Gemini & Imagen 3 API directly and saves the resulting images locally.
+Use the Image Generator when you need to create visual assets from text prompts. This skill calls the Google Gemini image generation API directly and saves the resulting images locally.
 
-**IMPORTANT: Think twice before generating images.** Image generation takes time and quota. Before generating:
+> **Billing required.** Google's image generation models are not available on the free tier. The API key must belong to a Google AI Studio / Google Cloud project with billing enabled (pay-as-you-go). Without billing, the API returns `limit: 0` and no image is generated. As an alternative, set `OPENROUTER_API_KEY` to use the OpenRouter fallback.
+
+**IMPORTANT: Think twice before generating images.** Image generation costs money and takes time. Before generating:
 1. Check if a suitable image already exists in the squad's assets folder
 2. Check if a web search could find a free/open image that works
 3. Consider if the image is truly necessary for the content quality
@@ -37,15 +41,15 @@ Use the Image Generator when you need to create visual assets from text prompts.
 ## Modes
 
 ### Test mode (`--mode test`)
-- **Model:** `imagen-3.0-fast-generate-001`
+- **Model:** `gemini-3.1-flash-lite-image` (Google) / `sourceful/riverflow-v2-fast` (OpenRouter fallback)
 - **When to use:** During iteration, testing layouts, checking composition, reviewing concepts
-- **Cost / Speed:** Ultra-fast generation, ideal for drafts and rapid prototyping
+- **Cost / Speed:** Fast generation, ideal for drafts and rapid prototyping
 - **Quality:** Good enough for layout validation and concept approval
 
 ### Production mode (`--mode production`)
-- **Model:** `imagen-3.0-generate-002`
+- **Model:** `gemini-3.1-flash-image` (Google) / `google/gemini-3.1-flash-image-preview` (OpenRouter fallback)
 - **When to use:** Only when generating the final images that will be published or delivered
-- **Cost / Speed:** Studio grade, high photorealism, sharp typography rendering
+- **Cost / Speed:** High photorealism, sharp typography rendering
 - **Quality:** Production-ready quality for social media (Instagram, LinkedIn, YouTube, etc.)
 
 **Default mode is `test`.** Only switch to `production` when the user has approved the layout/composition and you are generating the final deliverable images.
@@ -91,7 +95,7 @@ The batch JSON file should contain:
 ```json
 [
   {"prompt": "Description of image 1", "output": "path/to/image1.jpg", "aspect_ratio": "1:1"},
-  {"prompt": "Description of image 2", "output": "path/to/image2.jpg", "aspect_ratio": "4:5"}
+  {"prompt": "Description of image 2", "output": "path/to/image2.jpg", "aspect_ratio": "4:3"}
 ]
 ```
 
