@@ -23,6 +23,8 @@ Type `/opensquad` to open the main menu, or use any of these commands:
 - `squads/{name}/output/` — Generated content and files
 - `_opensquad/_browser_profile/` — Persistent browser sessions (login cookies, localStorage)
 
+The `/opensquad` command is provided by the Kiro skill at `.kiro/skills/opensquad/SKILL.md`. Type `/opensquad` in chat (it appears in the `/` menu with the 🌐 skill icon) to start.
+
 ## How It Works
 
 1. The `/opensquad` skill is the entry point for all interactions
